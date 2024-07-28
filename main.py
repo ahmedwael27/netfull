@@ -308,7 +308,7 @@ def update_email():
 
     user = Users.query.get(current_user.id)
 
-    if user and check_password_hash(user.password, password):
+    if user and user.password :
         user.email = new_email
         user.verified = False
         db.session.commit()
@@ -332,9 +332,8 @@ def update_password():
 
     user = Users.query.get(current_user.id)
 
-    if user and check_password_hash(user.password, old_password):
-        hashed_new_password = generate_password_hash(new_password, method='pbkdf2:sha256')
-        user.password = hashed_new_password
+    if user and old_password:
+        user.password = new_password
         db.session.commit()
         flash('Password updated successfully!', 'success')
     else:
