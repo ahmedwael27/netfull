@@ -6,138 +6,275 @@
     <title>Dashboard</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <style>
-        body {
-            background-color: #DFD3C3;
-            color: #333;
-            margin: 0;
-            padding: 0;
-        }
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+    body {
+        background-color: #DFD3C3;
+        color: #333;
+        margin: 0;
+        padding: 0;
+    }
 
-        .container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            position: relative;
-            margin-top: 60px; /* Space for the icon */
-        }
+    .container {
+        background-color: #; /* Added a background color for better visibility */
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        position: relative;
+        margin-top: 400px; /* Space for the icon */
+        max-width: 800px; /* Set max width for the container */
+        margin-left: auto;
+        margin-right: auto;
+    }
 
-        .card {
-            border: none;
-            margin-top: 20px;
-        }
+    .card {
+        border: none;
+        margin-top: 20px;
+        max-width: 600px; /* Set max width for the card */
+        margin-left: auto;
+        margin-right: auto;
+    }
 
-        .card-header {
-            background-color: #DFD3C3;
-            border-bottom: none;
-        }
+    .card-header {
+        background-color: #F9F5E9;
+        border-bottom: none;
+    }
 
-        .card-header h4 {
-            margin: 0;
-            color: #333;
-        }
+    .card-header h4 {
+        margin: 0;
+        color: #8B4513;
+    }
 
-        .text-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-        }
+    .text-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
 
-        .button-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-        }
+    .button-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
 
-        .btn {
-            padding: 10px;
-            background-color: #8B4513;
-            border: none;
-            color: #fff;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-top: 20px;
-            text-align: center;
-        }
+    .btn {
+        padding: 10px;
+        background-color: #8B4513;
+        border: none;
+        color: #fff;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 20px;
+        text-align: center;
+    }
 
-        .btn:hover {
-            background-color: #A0522D;
-        }
+    .btn:hover {
+        background-color: #A0522D;
+    }
 
-        .list-group-item {
-            border: none;
-            border-bottom: 1px solid #ccc;
-        }
+    .list-group-item {
+        border: none;
+        border-bottom: 1px solid #ccc;
+    }
 
-        /* Settings Icon */
-        .settings-icon {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            font-size: 24px;
-            color: #8B4513;
-            cursor: pointer;
-            z-index: 1000; /* Ensure it's above other content */
-        }
+    /* Settings Icon */
+    .settings-icon {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        font-size: 24px;
+        color: #8B4513;
+        cursor: pointer;
+        z-index: 1000; /* Ensure it's above other content */
+    }
 
-        .settings-icon:hover {
-            color: #A0522D;
-        }
-    </style>
+    .settings-icon:hover {
+        color: #A0522D;
+    }
+
+    /* Image Styling */
+    .post-image {
+        width: 200%; /* Adjust the width to fit the card */
+        max-height: 600px; /* Set a max height */
+        object-fit: cover;
+        border-radius: 10px;
+    }
+
+    /* Hide Comments Initially */
+    .comments-section {
+        display: none;
+    }
+
+    .comments-toggle {
+        cursor: pointer;
+        color: #8B4513;
+    }
+
+    .comments-toggle:hover {
+        color: #A0522D;
+    }
+
+    /* Like Icon Styling */
+    .card-link span {
+        font-size: 20px; /* Adjust size as needed */
+        color: #FFD700;  /* Gold color for the star */
+        cursor: pointer;
+    }
+
+    .card-link span:hover {
+        color: #FFA500; /* Change color on hover */
+    }
+    .media-container {
+    display: flex;
+    gap: 10px; /* Adjust the space between image and video */
+    overflow-x: auto; /* Allows horizontal scrolling if needed */
+}
+
+.image-gallery, .video-container {
+    flex: 1; /* Adjusts width to fit the container */
+    min-width: 0; /* Ensures content doesn't overflow */
+}
+
+.image-gallery {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.image-gallery img {
+    max-width: 100%;
+    height: auto;
+    margin-right: 10px;
+    border-radius: 5px;
+}
+
+.video-container {
+    max-width: 100%; /* Ensures the video container doesn't exceed the available space */
+}
+
+.video {
+    width: 100%; /* Makes video fit within its container */
+    max-height: 400px; /* Adjust as needed */
+}
+
+
+</style>
+
 </head>
 <body>
 
-    <!-- Settings Icon -->
-    <a href="{{ url_for('settings') }}" class="settings-icon">
-        <i class="fas fa-cog"></i>
-    </a>
+<!-- Settings Icon -->
+<a href="{{ url_for('settings') }}" class="settings-icon">
+    <i class="fas fa-cog"></i>
+</a>
 
-    <div class="container mt-4">
-        <div class="text-container">
-            <h1>Welcome, {{ current_user.username }}!</h1>
-        </div>
+<div class="container mt-4">
+    <div class="text-container">
+        <h1>Welcome, {{ current_user.username }}!</h1>
+    </div>
 
-        {% if current_user.role == "admin" %}
-        <div class="button-container">
-            <a href="/post" class="btn">Create Post</a>
-        </div>
-        {% endif %}
-
-        <h2 class="mt-4">Posts</h2>
-        {% for post in posts %}
-        <div class="card mt-4">
-            <div class="card-body">
-                <h5 class="card-title">{{ post.title }}</h5>
-                <h6 class="card-subtitle mb-2 text-muted">by {{ post.author.username }} on {{ post.date_posted }}</h6>
-                <p class="card-text">{{ post.content }}</p>
-                {% if post.image %}
-                <img src="{{ url_for('uploaded_file', filename=post.image) }}" alt="Post Image" class="img-fluid">
-                {% endif %}
-                {% if current_user.verified %}
-                <a href="{{ url_for('like_post', post_id=post.id) }}" class="card-link"><i class="fas fa-thumbs-up"></i> ({{ post.likes|length }})</a>
-                {% else %}
-                <span class="text-muted"><i class="fas fa-thumbs-up"></i> ({{ post.likes|length }})</span>
-                {% endif %}
-
-                <h6 class="mt-3">Comments</h6>
-                {% for comment in post.comments %}
-                <div class="card mt-2">
-                    <div class="card-body">
-                        <p class="card-text">{{ comment.content }}</p>
-                        {% if current_user.verified %}
-                        <a href="{{ url_for('like_comment', comment_id=comment.id) }}" class="card-link"><i class="fas fa-thumbs-up"></i> ({{ comment.likes|length }})</a>
+    {% if current_user.role == "admin" %}
+    <div class="button-container">
+        <a href="/post" class="btn">Create Post</a>
+    </div>
+    {% endif %}
+<div class="col-md-4">
+                <h2>Users</h2>
+                <ul class="list-group">
+                    {% for user in users %}
+                    <li class="list-group-item">
+                        {{ user.username }}
+                        {% if current_user.is_authenticated and user != current_user %}
+                        {% if current_user.is_following(user) %}
+                        <button class="btn btn-danger unfollow" data-url="{{ url_for('unfollow', username=user.username) }}">Unfollow</button>
                         {% else %}
-                        <span class="text-muted"><i class="fas fa-thumbs-up"></i> ({{ comment.likes|length }})</span>
+                        <button class="btn btn-primary follow" data-url="{{ url_for('follow', username=user.username) }}">Follow</button>
                         {% endif %}
-                        <footer class="blockquote-footer">{{ comment.author.username }} on {{ comment.date_posted }}</footer>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+
+    <h2 class="mt-4">Posts</h2>
+
+            {% for post in posts %}
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">{{ post.title }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">by {{ post.author.username }} on {{ post.date_posted }}</h6>
+
+                    <div class="media-container">
+                        {% if post.images %}
+                        <div class="image-gallery">
+                            {% for image in post.images.split(',') %}
+                            <img src="{{ url_for('uploaded_file', filename=image) }}" alt="Post Image" class="img-fluid post-image">
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        {% if post.video %}
+                        <div class="video-container">
+                            <video controls class="video">
+                                <source src="{{ url_for('uploaded_file', filename=post.video) }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                        {% endif %}
                     </div>
-                </div>
-                {% endfor %}
+
+                    <p class="card-text">{{ post.content }}</p>
+
+                    {% if current_user == post.author %}
+                    <a href="{{ url_for('edit_post', post_id=post.id) }}" class="btn btn-secondary">Edit</a>
+                    <form action="{{ url_for('delete_post', post_id=post.id) }}" method="POST" style="display:inline;">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                    {% endif %}
+
+                    {% if current_user.verified %}
+                    <a href="#" class="card-link like-post" data-url="{{ url_for('like_post', post_id=post.id) }}">
+                        <span>&#9734;</span> (<span class="like-count">{{ post.likes|length }}</span>)
+                    </a>
+                    {% else %}
+                    <span class="text-muted"><span>&#9734;</span> (<span class="like-count">{{ post.likes|length }}</span>)</span>
+                    {% endif %}
+
+                    <h6 class="mt-3 comments-toggle">Comments</h6>
+                    <div class="comments-section">
+                        {% for comment in post.comments %}
+    <div class="card mt-2 comment-card" id="comment-{{ comment.id }}">
+        <div class="card-body">
+            <p class="card-text">{{ comment.content }}</p>
+
+            {% if current_user == comment.author %}
+                <a href="{{ url_for('edit_comment', comment_id=comment.id) }}" class="btn btn-secondary btn-sm">Edit</a>
+                <form action="{{ url_for('delete_comment', comment_id=comment.id) }}" method="POST" class="delete-comment-form" style="display:inline;">
+                    <button type="submit" class="btn btn-link p-0" style="border: none; background: none; padding: 0;">
+                        <i class="material-icons" style="font-size:24px; color: #d9534f;">delete</i>
+                    </button>
+                </form>
+            {% endif %}
+
+            {% if current_user.verified %}
+                <a href="#" class="card-link like-comment" data-url="{{ url_for('like_comment', comment_id=comment.id) }}">
+                    <i class="fas fa-thumbs-up"></i> (<span class="like-count">{{ comment.likes|length }}</span>)
+                </a>
+            {% else %}
+                <span class="text-muted"><i class="fas fa-thumbs-up"></i> (<span class="like-count">{{ comment.likes|length }}</span>)</span>
+            {% endif %}
+
+            <footer class="blockquote-footer">{{ comment.author.username }}</footer>
+        </div>
+    </div>
+{% endfor %}
+
+
                 {% if current_user.verified %}
-                <form action="{{ url_for('create_comment', post_id=post.id) }}" method="POST" class="mt-2">
+                <form action="{{ url_for('create_comment', post_id=post.id) }}" method="POST" class="mt-2 comment-form" data-url="{{ url_for('create_comment', post_id=post.id) }}">
                     <div class="form-group">
                         <textarea class="form-control" name="content" rows="2" placeholder="Add a comment" required></textarea>
                     </div>
@@ -148,11 +285,113 @@
                 {% endif %}
             </div>
         </div>
-        {% endfor %}
     </div>
+    {% endfor %}
+</div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Handle like button click for comments
+            $(document).on('click', '.like-comment', function(e) {
+                e.preventDefault(); // Prevent default link behavior
+
+                var $this = $(this);
+                var url = $this.data('url'); // URL from data attribute
+
+                $.ajax({
+                    url: url,
+                    type: 'POST', // Use POST for the AJAX request
+                    success: function(response) {
+                        // Update the like count in the UI
+                        $this.find('.like-count').text(response.likes);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error); // Log error message
+                        console.error('Status:', status);
+                        console.error('Response:', xhr.responseText);
+                        alert('Error processing the like.');
+                    }
+                });
+            });
+
+            // Handle like button click for posts
+            $('.like-post').on('click', function(e) {
+                e.preventDefault(); // Prevent default link behavior
+
+                var $this = $(this);
+                var url = $this.data('url'); // URL from data attribute
+
+                $.ajax({
+                    url: url,
+                    type: 'POST', // Use POST for the AJAX request
+                    success: function(response) {
+                        // Update the like count in the UI
+                        $this.find('.like-count').text(response.likes);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error); // Log error message
+                        console.error('Status:', status);
+                        console.error('Response:', xhr.responseText);
+                        alert('Error processing the like.');
+                    }
+                });
+            });
+
+            // Handle comment submission
+            $('.comment-form').on('submit', function(e) {
+                e.preventDefault(); // Prevent default form submission
+
+                var $this = $(this);
+                var url = $this.data('url'); // URL from data attribute
+                var formData = $this.serialize(); // Form data
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        // Create a new comment element
+                        var commentHtml = `
+                            <div class="card mt-2">
+                                <div class="card-body">
+                                    <p class="card-text">${response.content}</p>
+                                    <footer class="blockquote-footer">${response.author} on ${response.date_posted}</footer>
+                                </div>
+                            </div>
+                        `;
+                        // Append the new comment to the comments section
+                        $this.before(commentHtml);
+                        // Clear the textarea
+                        $this.find('textarea').val('');
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error); // Log error message
+                        console.error('Status:', status);
+                        console.error('Response:', xhr.responseText);
+                        alert('Error posting the comment.');
+                    }
+                });
+            });
+
+            // Toggle comments visibility
+            var toggles = document.querySelectorAll('.comments-toggle');
+            toggles.forEach(function(toggle) {
+                toggle.addEventListener('click', function() {
+                    var commentsSection = this.nextElementSibling;
+                    if (commentsSection.style.display === 'none' || commentsSection.style.display === '') {
+                        commentsSection.style.display = 'block';
+                    } else {
+                        commentsSection.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+
+    </script>
+
 </body>
+
 </html>

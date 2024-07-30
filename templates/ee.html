@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            background-color: #DFD3C3;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            margin-top: 60px; /* Space for the icon */
+        }
+
+        .card {
+            border: none;
+            margin-top: 20px;
+        }
+
+        .card-header {
+            background-color: #DFD3C3;
+            border-bottom: none;
+        }
+
+        .card-header h4 {
+            margin: 0;
+            color: #333;
+        }
+
+        .text-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        .btn {
+            padding: 10px;
+            background-color: #8B4513;
+            border: none;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: #A0522D;
+        }
+
+        .list-group-item {
+            border: none;
+            border-bottom: 1px solid #ccc;
+        }
+
+        /* Settings Icon */
+        .settings-icon {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            color: #8B4513;
+            cursor: pointer;
+            z-index: 1000; /* Ensure it's above other content */
+        }
+
+        .settings-icon:hover {
+            color: #A0522D;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Settings Icon -->
+    <a href="{{ url_for('settings') }}" class="settings-icon">
+        <i class="fas fa-cog"></i>
+    </a>
+
+    <div class="container mt-4">
+        <div class="text-container">
+            <h1>Welcome, {{ current_user.username }}!</h1>
+        </div>
+
+        {% if current_user.role == "admin" %}
+        <div class="button-container">
+            <a href="/post" class="btn">Create Post</a>
+        </div>
+        {% endif %}
+
+        <h2 class="mt-4">Posts</h2>
+        {% for post in posts %}
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">{{ post.title }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">by {{ post.author.username }} on {{ post.date_posted }}</h6>
+                <p class="card-text">{{ post.content }}</p>
+                {% if post.image %}
+                <img src="{{ url_for('uploaded_file', filename=post.image) }}" alt="Post Image" class="img-fluid">
+                {% endif %}
+                {% if current_user.verified %}
+                <a href="{{ url_for('like_post', post_id=post.id) }}" class="card-link"><i class="fas fa-thumbs-up"></i> ({{ post.likes|length }})</a>
+                {% else %}
+                <span class="text-muted"><i class="fas fa-thumbs-up"></i> ({{ post.likes|length }})</span>
+                {% endif %}
+
+                <h6 class="mt-3">Comments</h6>
+                {% for comment in post.comments %}
+                <div class="card mt-2">
+                    <div class="card-body">
+                        <p class="card-text">{{ comment.content }}</p>
+                        {% if current_user.verified %}
+                        <a href="{{ url_for('like_comment', comment_id=comment.id) }}" class="card-link"><i class="fas fa-thumbs-up"></i> ({{ comment.likes|length }})</a>
+                        {% else %}
+                        <span class="text-muted"><i class="fas fa-thumbs-up"></i> ({{ comment.likes|length }})</span>
+                        {% endif %}
+                        <footer class="blockquote-footer">{{ comment.author.username }} on {{ comment.date_posted }}</footer>
+                    </div>
+                </div>
+                {% endfor %}
+                {% if current_user.verified %}
+                <form action="{{ url_for('create_comment', post_id=post.id) }}" method="POST" class="mt-2">
+                    <div class="form-group">
+                        <textarea class="form-control" name="content" rows="2" placeholder="Add a comment" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-secondary btn-sm">Comment</button>
+                </form>
+                {% else %}
+                <p class="text-muted">Log in and verify your account to comment.</p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
