@@ -23,6 +23,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
+from datetime import date
 
 app = Flask(__name__)
 babel = Babel(app)
@@ -114,15 +115,25 @@ class Comment(db.Model):
         likes = db.relationship('Like', backref='comment', lazy=True)
 
 class Like(db.Model):
-        id = db.Column(db.Integer, primary_key=True)
-        user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-        post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=True)
-        comment_id = db.Column(db.Integer, db.ForeignKey('comment.id'), nullable=True)
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=True)
+    comment_id = db.Column(db.Integer, db.ForeignKey('comment.id'), nullable=True)
+    date_liked = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
 
 class PostImage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(255), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+
+class UserActivity(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
+    user = db.relationship('Users', backref=db.backref('activities', lazy=True))
+
+    __table_args__ = (db.UniqueConstraint('user_id', 'date', name='_user_date_uc'),)
 
 
 
@@ -137,6 +148,7 @@ admin.add_view(MyModelView(Post, db.session))
 admin.add_view(MyModelView(PostImage, db.session))
 admin.add_view(MyModelView(Comment, db.session))
 admin.add_view(MyModelView(Like, db.session))
+admin.add_view(MyModelView(UserActivity, db.session))
 
 
 # Serializer for generating and verifying tokens
@@ -221,18 +233,26 @@ def confirm_email(token):
     return redirect(url_for('dashboard'))
 
 @app.route('/', methods=['GET', 'POST'])
-def login():
+def home():
+    if current_user.is_authenticated:
+        # If user is authenticated, redirect to dashboard
+        posts = Post.query.order_by(Post.date_posted.desc()).all()
+        users = Users.query.all()  # Get all users
+        return render_template('dashboard.html', posts=posts, users=users)
+
     if request.method == 'POST':
+        # Handle login
         email = request.form.get('email')
         password = request.form.get('password')
         user = Users.query.filter_by(email=email).first()
-        if user and user.password:
+        if user and user.password == password:
             login_user(user)
             flash('Login successful!', 'success')
             return redirect(url_for('dashboard'))
         else:
             flash('Invalid email or password', 'danger')
-            return redirect(url_for('login'))
+            return redirect(url_for('home'))
+
     return render_template('login.html')
 
 @app.route('/dashboard')
@@ -242,7 +262,20 @@ def dashboard():
     users = Users.query.all()  # Get all users
     return render_template('dashboard.html', posts=posts, users=users)
 
-
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        user = Users.query.filter_by(email=email).first()
+        if user and user.password == password:
+            login_user(user)
+            flash('Login successful!', 'success')
+            return redirect(url_for('dashboard'))
+        else:
+            flash('Invalid email or password', 'danger')
+            return redirect(url_for('login'))
+    return render_template('login.html')
 
 @app.route('/follow/<username>')
 @login_required
@@ -310,6 +343,7 @@ def create_post():
         video_filename = secure_filename(video.filename)
         video.save(os.path.join(app.config['UPLOAD_FOLDER'], video_filename))
 
+    # Create and add the new post
     new_post = Post(
         title=title,
         content=content,
@@ -318,7 +352,16 @@ def create_post():
         author=current_user
     )
     db.session.add(new_post)
+
+    # Log the user's activity for the current date
+    today = date.today()
+    user_activity = UserActivity.query.filter_by(user_id=current_user.id, date=today).first()
+    if not user_activity:
+        user_activity = UserActivity(user_id=current_user.id)
+        db.session.add(user_activity)
+
     db.session.commit()
+
     flash('Post created successfully!', 'success')
     return redirect(url_for('dashboard'))
 
@@ -455,6 +498,38 @@ def like_comment(comment_id):
         db.session.commit()
         action = 'added'
     return jsonify({'likes': comment.likes.count(), 'action': action})
+
+
+from datetime import datetime, timedelta
+
+@app.route('/profile')
+@login_required
+def profile():
+    # Get the user's activities
+    activities = current_user.activities
+
+    # Calculate the streak
+    streak = 0
+    previous_date = None
+    sorted_activities = sorted(activities, key=lambda a: a.date, reverse=True)
+
+    for activity in sorted_activities:
+        if previous_date is None:
+            streak = 1
+        elif activity.date == previous_date - timedelta(days=1):
+            streak += 1
+        else:
+            break
+        previous_date = activity.date
+
+    # Query for posts, recent likes, and comments
+    user_posts = Post.query.filter_by(user_id=current_user.id).all()
+    recent_likes = Like.query.filter_by(user_id=current_user.id).order_by(Like.date_liked.desc()).limit(5).all()
+    recent_comments = Comment.query.filter_by(user_id=current_user.id).order_by(Comment.date_posted.desc()).limit(5).all()
+
+    return render_template('user_profile.html', user_posts=user_posts, recent_likes=recent_likes,
+                           recent_comments=recent_comments, streak=streak)
+
 
 
 @app.route('/logout')
